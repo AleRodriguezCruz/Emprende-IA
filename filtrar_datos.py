@@ -1,24 +1,37 @@
 import pandas as pd
 
-# Nombre del archivo grande que descargaste
-archivo_original = 'denue_inegi_02_.csv'
-
-# Nombre que le daremos a nuestro nuevo archivo, más pequeño
+# Archivo de entrada con todos los datos
+archivo_principal = 'db-ens-bc.csv'
+# Archivo de salida que crearemos
 archivo_filtrado = 'datos_ensenada.csv'
 
-print(f"Cargando el archivo grande: {archivo_original}...")
+print("--- Creando la Base de Datos Final (Versión Corregida) ---")
 
-# Leer el archivo CSV. Esto puede tardar un momento.
-df = pd.read_csv(archivo_original, encoding='latin1')
+try:
+    print(f"Paso 1: Cargando '{archivo_principal}'...")
+    df = pd.read_csv(archivo_principal, encoding='latin1', low_memory=False)
+    print("Archivo cargado.")
 
-print("Archivo cargado. Filtrando por municipio de 'Ensenada'...")
+    # Paso 2: Filtrar por Ensenada usando la columna correcta
+    print("Paso 2: Filtrando negocios de Ensenada (cve_municipio_fk == 1)...")
+    df_ensenada = df[df['cve_municipio_fk'] == 1].copy()
 
-# Filtrar el DataFrame para quedarnos solo con las filas de Ensenada
-df_ensenada = df[df['municipio'] == 'Ensenada']
+    # Paso 3: Seleccionar las columnas correctas que sí existen
+    # Usamos 'nom_estab' como el nombre/categoría del negocio
+    print("Paso 3: Seleccionando las columnas finales (nom_estab, latitud, longitud)...")
+    df_final = df_ensenada[['nom_estab', 'latitud', 'longitud']]
 
-print(f"Se encontraron {len(df_ensenada)} negocios en Ensenada.")
+    # Renombrar 'nom_estab' para que la app lo entienda
+    df_final.rename(columns={'nom_estab': 'categoria_negocio'}, inplace=True)
 
-# Guardar el resultado en un nuevo archivo CSV, mucho más ligero
-df_ensenada.to_csv(archivo_filtrado, index=False)
+    # Guardar el archivo final
+    df_final.to_csv(archivo_filtrado, index=False)
+    
+    print(f"\n¡LISTO! Se ha creado el archivo '{archivo_filtrado}'.")
+    print("Este es el archivo definitivo. ¡Lo logramos!")
 
-print(f"¡Éxito! Se ha creado el archivo '{archivo_filtrado}' con solo los datos de Ensenada.")
+except FileNotFoundError:
+    print(f"\nERROR: No se encontró el archivo '{archivo_principal}'.")
+except KeyError as e:
+    print(f"\nERROR DE COLUMNA: No se encontró la columna {e}.")
+    print("Esto no debería pasar ahora, pero verifica los nombres si ocurre.")
