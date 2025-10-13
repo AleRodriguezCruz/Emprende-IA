@@ -20,7 +20,7 @@ st.markdown("Tu asistente inteligente para encontrar oportunidades de negocio en
 def load_data():
     try:
         # El nombre del archivo CSV que subiste a GitHub
-        df = pd.read_csv('denue_inegi_02_.csv', encoding='latin1')
+        df = pd.read_csv('datos_ensenada.csv', encoding='latin1')
         df_ensenada = df[df['municipio'] == 'Ensenada'].copy()
         df_limpio = df_ensenada[['nombre_act', 'latitud', 'longitud']].copy()
         df_limpio.rename(columns={'nombre_act': 'categoria_negocio'}, inplace=True)
@@ -81,4 +81,5 @@ if not df_limpio.empty:
     if categoria_seleccionada == "TODOS (Mapa de Calor)":
         st.header("Negocios más comunes en Ensenada")
         top_negocios = df_limpio['categoria_negocio'].value_counts().head(15)
+
         st.bar_chart(top_negocios)
