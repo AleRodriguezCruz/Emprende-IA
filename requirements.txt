@@ -1,4 +1,5 @@
+fastapi
+uvicorn
 pandas
-streamlit
-folium
-streamlit-folium
+openpyxl
+pydantic
